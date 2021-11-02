@@ -1,0 +1,11 @@
+MODEL:
+  Recognize:
+    thresh: 0.6
+
+DATABASE:
+  image_path: 'C:\Users\ROBOT_100\Documents\Face_API\database\VOTO_Face\VOTO_Face'
+  feature_path: 'C:\Users\ROBOT_100\Documents\Face_API\database\VOTO_Face\VOTO_Feature'
+
+IO:
+  receivePort: 2902
+  receiveBufferSize: 100000

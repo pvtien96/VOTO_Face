@@ -1,0 +1,7 @@
+loguru
+fvcore
+onnxruntime
+opencv-python
+scikit-image
+numpy
+numba
