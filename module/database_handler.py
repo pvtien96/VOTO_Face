@@ -103,7 +103,7 @@ class DatabaseHandler:
             if image.shape[:2] != tuple(self.cfg.MODEL.Recognize.image_size):
                 image, _ = square_crop(image,
                                        self.cfg.MODEL.Detection.image_size[0])
-
+                self.detector.prepare()
                 try:
                     # If using scrfd method, using the built in get largest
                     # box which implement in it class.
@@ -115,14 +115,15 @@ class DatabaseHandler:
                     # Else using RetinaFace
                     bboxes, landmarks = self.detector.detect(image)
 
-                    areas = []
-                    for i in range(bboxes.shape[0]):
-                        x = bboxes[i]
-                        area = (x[2] - x[0]) * (x[3] - x[1])
-                        areas.append(area)
-                    m = np.argsort(areas)[-1]
-                    bboxes = bboxes[m:m + 1]
-                    landmarks = landmarks[m:m + 1]
+                    if len(bboxes):
+                        areas = []
+                        for i in range(bboxes.shape[0]):
+                            x = bboxes[i]
+                            area = (x[2] - x[0]) * (x[3] - x[1])
+                            areas.append(area)
+                        m = np.argsort(areas)[-1]
+                        bboxes = bboxes[m:m + 1]
+                        landmarks = landmarks[m:m + 1]
 
                 # Add non face or low quality image to remove list
                 if len(bboxes) == 0:

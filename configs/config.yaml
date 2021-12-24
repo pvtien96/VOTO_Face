@@ -1,11 +1,15 @@
 MODEL:
   Recognize:
-    thresh: 0.6
+    thresh: 0.4
 
 DATABASE:
-  image_path: 'C:\Users\ROBOT_100\Documents\Face_API\database\VOTO_Face\VOTO_Face'
-  feature_path: 'C:\Users\ROBOT_100\Documents\Face_API\database\VOTO_Face\VOTO_Feature'
+  image_path: 'C:\Users\HP\Desktop\CTS\build-CTS-Desktop_Qt_5_14_2_MSVC2017_64bit-Debug\Bin\database\image'
+  feature_path: 'C:\Users\HP\Desktop\CTS\build-CTS-Desktop_Qt_5_14_2_MSVC2017_64bit-Debug\Bin\database\feature'
 
 IO:
   receivePort: 2902
   receiveBufferSize: 100000
+  sendPort: 4001
+
+MESSAGE_TYPE:
+  cameraFace: 11

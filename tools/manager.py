@@ -6,6 +6,7 @@ import sys
 import cv2
 from loguru import logger
 import base64
+import PyQt5.QtCore as qtcore
 import numpy as np
 import asyncio
 from functools import wraps
@@ -33,6 +34,7 @@ class FaceRecognition:
 
         self.receiveSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.receiveSocket.bind(('', self.cfg.IO.receivePort))
+        self.sendSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
         dbHander =DatabaseHandler(self.searcher, cfg, self.detector, self.extractor)
         dbHander.prepare()
@@ -62,10 +64,12 @@ class FaceRecognition:
         loop = asyncio.get_running_loop()
         while (True):
             message, address = self.receiveSocket.recvfrom(self.cfg.IO.receiveBufferSize)
-            frame_received = base64.decodebytes(message)
-            frame_as_np = np.frombuffer(frame_received, dtype=np.uint8)
+            data = qtcore.QByteArray()
+            data.append(message)
+            data=qtcore.QByteArray.fromBase64(data)
+            data=qtcore.qUncompress(data)
+            frame_as_np = np.frombuffer(data, dtype=np.uint8)
             frame = cv2.imdecode(frame_as_np, flags=1)
-
             self.frame_queue.put(frame)
         
     async def _detection_loop(self):
@@ -190,13 +194,21 @@ class FaceRecognition:
             frame[0:112, 0:112] = self.current_face
             frame = cv2.putText(frame, "Subject", (0, 10), self.font, 0.5, (85, 85, 255))
 
+            messageLength = 20
+            messageType= self.cfg.MESSAGE_TYPE.cameraFace.to_bytes(1, 'big')
+            recognized_message = messageLength.to_bytes(2, 'big') + messageType
+
             if self.gal_face_path == "Unkown":
                 frame[112:112+112, 0:112] = self.unkown_avatar
+                recognized_message += bytes(self.cfg.MESSAGE.UnknownFace, "utf-8")
             else:
                 gal_face = cv2.imread(self.gal_face_path)
                 frame[112:112+112, 0:112] = gal_face
                 frame = cv2.putText(frame, "GalleryMatch", (0, 112 + 10), self.font, 0.5, (85, 85, 255))
 
+                recognized_message += bytes(self.gal_face_path.split(self.split_key)[-2], "utf-8")
+
+            self.sendSocket.sendto(recognized_message, ('127.0.0.1', self.cfg.IO.sendPort))
         return frame
     
     def __get_split_key(self):

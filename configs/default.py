@@ -14,6 +14,15 @@ config = CN()
 config.IO = CN()
 config.IO.receivePort = 2902
 config.IO.receiveBufferSize = 100000
+config.IO.sendPort = 2802
+
+#Message tye config
+config.MESSAGE_TYPE = CN()
+config.MESSAGE_TYPE.cameraFace = 11
+
+#Message config
+config.MESSAGE = CN()
+config.MESSAGE.UnknownFace = '0000000000'
 
 # Config used model
 config.MODEL = CN()
